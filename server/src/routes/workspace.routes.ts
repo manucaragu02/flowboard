@@ -1,16 +1,12 @@
 import {  Router } from 'express';
 import { authenticateToken } from '../middleware/auth.middleware.js';
 import { prisma } from '../lib/prisma.js';
-import z from 'zod';
+import { z } from 'zod';
 
 const router = Router();
 
 const workspaceSchema = z.object({
   name: z.string().min(1, "El nombre del workspace es obligatorio"),
-});
-
-router.get('/', authenticateToken, async (req, res) => {
-
 });
 
 router.post('/', authenticateToken, async (req, res) => {
@@ -40,6 +36,27 @@ router.post('/', authenticateToken, async (req, res) => {
     });
 
     res.status(201).json(workspace);
+});
+
+router.get('/', authenticateToken, async (req, res) => {
+    if (!req.user) {
+        return res.status(401).json({ error: 'Usuario no autenticado' });
+    }
+
+    const workspaces = await prisma.workspace.findMany({
+        where: {
+            members: {
+                some: {
+                    userId: req.user.userId,
+                }
+            }
+        },
+        include: {
+            members: true,
+        },
+    });
+
+    res.json(workspaces);
 });
 
 export default router;
