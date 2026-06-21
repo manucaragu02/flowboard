@@ -9,12 +9,14 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import authRoutes from './routes/auth.routes.js';
 import workspaceRoutes from './routes/workspace.routes.js';
+import projectRoutes from './routes/project.routes.js';
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/workspaces', workspaceRoutes);
+app.use('/api/workspaces/:workspaceId/projects', projectRoutes);
 app.get('/health', (req: Request, res: Response) => {
   res.json({ status: 'ok'});
 });
