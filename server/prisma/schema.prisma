@@ -19,7 +19,8 @@ model User {
   name      String
   createdAt DateTime @default(now())
 
-  memberships WorkspaceMember[]
+  memberships   WorkspaceMember[]
+  refreshTokens RefreshToken[]
 }
 
 model Workspace {
@@ -73,4 +74,13 @@ model Task {
   projectId   String
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  createdAt DateTime @default(now())
+  expiresAt DateTime
 }
