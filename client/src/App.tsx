@@ -1,23 +1,24 @@
-import {useEffect, useState} from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Workspaces from './pages/Workspaces';
+import WorkspaceDetail from './pages/WorkspaceDetail';
+import KanbanBoard from './pages/KanbanBoard';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
-  const [status, setStatus] = useState<string>('Comprobando...');
-
-  useEffect(() => {
-    const apiUrl = import.meta.env.VITE_API_URL;
-
-    fetch(`${apiUrl}/health`)
-      .then((res) => res.json())
-      .then((data) => setStatus(data.status))
-      .catch(() => setStatus('Error al conectar con el servidor'));
-  }, []);
-
   return (
-    <div style={{ fontFamily: 'sans-serif', padding: '2rem' }}>
-      <h1>Flowboard</h1>
-      <p>Estado del servidor: {status}</p>
-    </div>
-  )
+    <BrowserRouter>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/workspaces" element={<ProtectedRoute><Workspaces /></ProtectedRoute>} />
+        <Route path="/workspaces/:workspaceId" element={<ProtectedRoute><WorkspaceDetail /></ProtectedRoute>} />
+        <Route path="/projects/:projectId" element={<ProtectedRoute><KanbanBoard /></ProtectedRoute>} />
+        <Route path="/" element={<Navigate to="/workspaces" />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
 export default App;
