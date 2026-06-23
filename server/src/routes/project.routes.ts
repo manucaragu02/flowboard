@@ -3,14 +3,14 @@ import { authenticateToken } from '../middleware/auth.middleware.js';
 import { prisma } from '../lib/prisma.js';
 import { z } from 'zod';
 
-const router = Router();
+const router = Router({ mergeParams: true });
 
-const workspaceSchema = z.object({
-  name: z.string().min(1, "El nombre del workspace es obligatorio"),
+const projectSchema = z.object({
+  name: z.string().min(1, "El nombre del proyecto es obligatorio"),
 });
 
 router.post('/', authenticateToken, async (req, res) => {
-    const parsed = workspaceSchema.safeParse(req.body);
+    const parsed = projectSchema.safeParse(req.body);
 
     if (!parsed.success) {
         return res.status(400).json({ error: z.flattenError(parsed.error) });
@@ -20,22 +20,34 @@ router.post('/', authenticateToken, async (req, res) => {
         return res.status(401).json({ error: 'Usuario no autenticado' });
     }
 
-    const workspace = await prisma.workspace.create({
+    const workspaceId = req.params.workspaceId as string;
+    if (!workspaceId) {
+        return res.status(400).json({ error: 'No se ha especificado el workspace' });
+    }
+
+    const isMember = await prisma.workspaceMember.findUnique({
+        where: {
+            userId_workspaceId: {
+                userId: req.user.userId,
+                workspaceId: workspaceId,
+            }
+        }
+    });
+    if (!isMember) {
+        return res.status(403).json({ error: 'No tienes permisos para crear proyectos en este workspace' });
+    }
+
+    const project = await prisma.project.create({
         data: {
             name: parsed.data.name,
-            members: {
-                create: {
-                    userId: req.user.userId,
-                    role: 'OWNER',
-                }
-            }
+            workspaceId: workspaceId,
         },
         include: {
-            members: true,
-        },
+            tasks: true,
+        }
     });
 
-    res.status(201).json(workspace);
+    res.status(201).json(project);
 });
 
 router.get('/', authenticateToken, async (req, res) => {
@@ -43,20 +55,33 @@ router.get('/', authenticateToken, async (req, res) => {
         return res.status(401).json({ error: 'Usuario no autenticado' });
     }
 
-    const workspaces = await prisma.workspace.findMany({
+    const workspaceId = req.params.workspaceId as string;
+    if (!workspaceId) {
+        return res.status(400).json({ error: 'No se ha especificado el workspace' });
+    }
+
+    const isMember = await prisma.workspaceMember.findUnique({
         where: {
-            members: {
-                some: {
-                    userId: req.user.userId,
-                }
+            userId_workspaceId: {
+                userId: req.user.userId,
+                workspaceId: workspaceId,
             }
+        }
+    });
+    if (!isMember) {
+        return res.status(403).json({ error: 'No tienes permisos para crear proyectos en este workspace' });
+    }
+
+    const projects = await prisma.project.findMany({
+        where: {
+            workspaceId: workspaceId,
         },
         include: {
-            members: true,
+            tasks: true,
         },
     });
 
-    res.json(workspaces);
+    res.json(projects);
 });
 
 export default router;
