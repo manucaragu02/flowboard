@@ -25,7 +25,11 @@ app.get('/health', (req: Request, res: Response) => {
 
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   console.error(err);
-  res.status(500).json({ error: 'Internal Server Error' });
+  const isDev = process.env.NODE_ENV !== 'production';
+  res.status(500).json({ 
+    error: 'Internal Server Error',
+    ...(isDev && { message: err.message }),
+  });
 });
 
 const PORT = process.env.PORT || 3000;
