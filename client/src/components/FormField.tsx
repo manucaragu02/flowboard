@@ -1,16 +1,24 @@
-import { type ChangeEvent, type FC } from 'react';
+import { type ChangeEvent, type FC } from 'react'
 
 interface FormFieldProps {
-  id: string;
-  label: string;
-  type: string;
-  placeholder: string;
-  value: string;
-  onChange: (event: ChangeEvent<HTMLInputElement>) => void;
-  error?: string;
+  id: string
+  label: string
+  type: string
+  placeholder: string
+  value: string
+  onChange: (event: ChangeEvent<HTMLInputElement>) => void
+  error?: string
 }
 
-const FormField: FC<FormFieldProps> = ({ id, label, type, placeholder, value, onChange, error }) => {
+const FormField: FC<FormFieldProps> = ({
+  id,
+  label,
+  type,
+  placeholder,
+  value,
+  onChange,
+  error,
+}) => {
   return (
     <div>
       <label htmlFor={id}>{label}</label>
@@ -23,7 +31,7 @@ const FormField: FC<FormFieldProps> = ({ id, label, type, placeholder, value, on
       />
       {error && <span style={{ color: 'red' }}>{error}</span>}
     </div>
-  );
-};
+  )
+}
 
-export default FormField;
+export default FormField

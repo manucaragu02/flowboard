@@ -1,33 +1,34 @@
-import { useState } from 'react';
-import { AuthContext } from './AuthContext';
+import { useState } from 'react'
+import { AuthContext } from './AuthContext'
 
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [accessToken, setAccessToken] = useState<string | null>(null)
+  const [refreshToken, setRefreshToken] = useState<string | null>(null)
+  const [userId, setUserId] = useState<string | null>(null)
 
-export function AuthProvider({ children } : { children: React.ReactNode }) {
-    const [accessToken, setAccessToken] = useState<string | null>(null);
-    const [refreshToken, setRefreshToken] = useState<string | null>(null);
-    const [userId, setUserId] = useState<string | null>(null);
+  const login = (accessToken: string, refreshToken: string, userId: string) => {
+    setAccessToken(accessToken)
+    setRefreshToken(refreshToken)
+    setUserId(userId)
+    localStorage.setItem('accessToken', accessToken)
+    localStorage.setItem('refreshToken', refreshToken)
+    localStorage.setItem('userId', userId)
+  }
 
-    const login = (accessToken: string, refreshToken: string, userId: string) => {
-        setAccessToken(accessToken);
-        setRefreshToken(refreshToken);
-        setUserId(userId);
-        localStorage.setItem('accessToken', accessToken);
-        localStorage.setItem('refreshToken', refreshToken);
-        localStorage.setItem('userId', userId);
-    }
+  const logout = () => {
+    setAccessToken(null)
+    setRefreshToken(null)
+    setUserId(null)
+    localStorage.removeItem('accessToken')
+    localStorage.removeItem('refreshToken')
+    localStorage.removeItem('userId')
+  }
 
-    const logout = () => {
-        setAccessToken(null);
-        setRefreshToken(null);
-        setUserId(null);
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-        localStorage.removeItem('userId');
-    }
-
-    return (
-        <AuthContext.Provider value={{ accessToken, refreshToken, userId, login, logout }}>
-            {children}
-        </AuthContext.Provider>
-    );
+  return (
+    <AuthContext.Provider
+      value={{ accessToken, refreshToken, userId, login, logout }}
+    >
+      {children}
+    </AuthContext.Provider>
+  )
 }

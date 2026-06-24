@@ -1,44 +1,40 @@
-import { useState, type SubmitEvent } from "react";
-import FormField from "../components/FormField";
-import api from "../api/axios.ts"; 
-import { useAuth } from "../hooks/useAuth.ts";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import { useState, type SubmitEvent } from 'react'
+import FormField from '../components/FormField'
+import api from '../api/axios.ts'
+import { useAuth } from '../hooks/useAuth.ts'
+import { useNavigate } from 'react-router-dom'
+import axios from 'axios'
 
 function Register() {
-  const { login } = useAuth();
-  const navigate = useNavigate();
+  const { login } = useAuth()
+  const navigate = useNavigate()
 
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPwd, setConfirmPwd] = useState('');
-  const [error, setError] = useState('');
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirmPwd, setConfirmPwd] = useState('')
+  const [error, setError] = useState('')
 
   const handleSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
-    e.preventDefault();
+    e.preventDefault()
     if (password !== confirmPwd) {
-      setError('Las contraseñas no coinciden');
-      return;
+      setError('Las contraseñas no coinciden')
+      return
     }
-    
+
     try {
-
-      await api.post('/api/auth/register', { name, email, password });
-      const { data } = await api.post('/api/auth/login', { email, password });
-      login(data.accessToken, data.refreshToken, data.userId);
-      navigate('/workspaces');
-
-    } catch(error) {
-
+      await api.post('/api/auth/register', { name, email, password })
+      const { data } = await api.post('/api/auth/login', { email, password })
+      login(data.accessToken, data.refreshToken, data.userId)
+      navigate('/workspaces')
+    } catch (error) {
       if (axios.isAxiosError(error) && error.response) {
-        setError(error.response.data.error || 'An error occurred');
+        setError(error.response.data.error || 'An error occurred')
       } else {
-        setError('An error occurred');
+        setError('An error occurred')
       }
-      
     }
-  };
+  }
 
   return (
     <div>
@@ -81,7 +77,7 @@ function Register() {
         <button type="submit">Registrarse</button>
       </form>
     </div>
-  );
+  )
 }
 
-export default Register;
+export default Register

@@ -1,35 +1,36 @@
-import { useState, type SubmitEvent } from "react";
-import FormField from "../components/FormField";
-import api from "../api/axios.ts"; 
-import { useAuth } from "../hooks/useAuth.ts";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import { useState, type SubmitEvent } from 'react'
+import FormField from '../components/FormField'
+import api from '../api/axios.ts'
+import { useAuth } from '../hooks/useAuth.ts'
+import { useNavigate } from 'react-router-dom'
+import axios from 'axios'
 
 function Login() {
-  const { login } = useAuth();
-  const navigate = useNavigate();
+  const { login } = useAuth()
+  const navigate = useNavigate()
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
 
   const handleSubmit = (e: SubmitEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    
-    api.post('/api/auth/login', { email, password })
+    e.preventDefault()
+
+    api
+      .post('/api/auth/login', { email, password })
       .then(({ data }) => {
-        console.log('Login successful:', data);
-        login(data.accessToken, data.refreshToken, data.userId);
-        navigate('/workspaces');
+        console.log('Login successful:', data)
+        login(data.accessToken, data.refreshToken, data.userId)
+        navigate('/workspaces')
       })
-      .catch(error => {
+      .catch((error) => {
         if (axios.isAxiosError(error) && error.response) {
-          setError(error.response.data.error || 'An error occurred');
+          setError(error.response.data.error || 'An error occurred')
         } else {
-          setError('An error occurred');
+          setError('An error occurred')
         }
-      });
-  };
+      })
+  }
 
   return (
     <div>
@@ -56,7 +57,7 @@ function Login() {
         <button type="submit">Iniciar Sesión</button>
       </form>
     </div>
-  );
+  )
 }
 
-export default Login;
+export default Login
