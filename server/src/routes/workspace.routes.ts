@@ -53,6 +53,7 @@ router.get('/', authenticateToken, async (req, res) => {
     },
     include: {
       members: true,
+      projects: true,
     },
   })
 
