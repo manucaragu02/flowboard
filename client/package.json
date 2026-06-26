@@ -33,6 +33,6 @@
   "prettier": {
     "singleQuote": true,
     "semi": false,
-    "printWidth": 40
+    "printWidth": 120
   }
 }
