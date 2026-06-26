@@ -32,6 +32,7 @@ router.post('/', authenticateToken, async (req, res) => {
     },
     include: {
       members: true,
+      projects: true,
     },
   })
 
