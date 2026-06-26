@@ -2,8 +2,8 @@ import { useState } from 'react'
 import { AuthContext } from './AuthContext'
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [accessToken, setAccessToken] = useState<string | null>(null)
-  const [refreshToken, setRefreshToken] = useState<string | null>(null)
+  const [accessToken, setAccessToken] = useState<string | null>(localStorage.getItem('accessToken'))
+  const [refreshToken, setRefreshToken] = useState<string | null>(localStorage.getItem('refreshToken'))
   const [userId, setUserId] = useState<string | null>(null)
 
   const login = (accessToken: string, refreshToken: string, userId: string) => {
@@ -25,10 +25,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider
-      value={{ accessToken, refreshToken, userId, login, logout }}
-    >
-      {children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={{ accessToken, refreshToken, userId, login, logout }}>{children}</AuthContext.Provider>
   )
 }
