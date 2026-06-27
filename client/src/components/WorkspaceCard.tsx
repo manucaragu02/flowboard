@@ -1,3 +1,5 @@
+import styles from './WorkspaceCard.module.css'
+
 interface Props {
   name: string
   memberCount: number
@@ -6,7 +8,7 @@ interface Props {
 
 function WorkspaceCard({ name, memberCount, projectCount }: Props) {
   return (
-    <div>
+    <div className={styles.container}>
       <h2>{name}</h2>
       <p>
         {memberCount} miembro{memberCount !== 1 ? 's' : ''}

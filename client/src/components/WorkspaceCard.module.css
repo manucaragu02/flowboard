@@ -1,0 +1,12 @@
+.container {
+  background-color: rgb(66, 66, 66);
+  border-radius: 1em;
+  margin: 10px 30px;
+  text-decoration: none;
+  text-transform: none;
+
+  h2,
+  p {
+    text-decoration: none;
+  }
+}

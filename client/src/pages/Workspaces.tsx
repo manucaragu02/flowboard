@@ -4,6 +4,7 @@ import WorkspaceCard from '../components/WorkspaceCard'
 import Modal from '../components/Modal'
 import FormField from '../components/FormField'
 import axios from 'axios'
+import { Link } from 'react-router-dom'
 
 interface Workspace {
   id: string
@@ -77,12 +78,9 @@ function Workspaces() {
         </form>
       </Modal>
       {workspaces.map((item) => (
-        <WorkspaceCard
-          key={item.id}
-          name={item.name}
-          memberCount={item.members.length}
-          projectCount={item.projects.length}
-        />
+        <Link key={item.id} to={`/workspaces/${item.id}`}>
+          <WorkspaceCard name={item.name} memberCount={item.members.length} projectCount={item.projects.length} />
+        </Link>
       ))}
     </div>
   )
