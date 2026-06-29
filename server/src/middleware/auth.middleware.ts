@@ -1,11 +1,7 @@
 import jwt from 'jsonwebtoken'
 import { Request, Response, NextFunction } from 'express'
 
-export const authenticateToken = (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+export const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers['authorization']
   const token = authHeader && authHeader.split(' ')[1]
 
@@ -14,7 +10,9 @@ export const authenticateToken = (
   }
 
   jwt.verify(token, process.env.JWT_ACCESS_SECRET as string, (err, user) => {
-    if (err) {
+    if (err && err.name === 'TokenExpiredError') {
+      return res.status(401).json({ error: 'Token caducado' })
+    } else if (err) {
       return res.status(403).json({ error: 'Token inválido' })
     }
     req.user = user as { userId: string }

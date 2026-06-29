@@ -22,12 +22,12 @@ api.interceptors.response.use(
     return response
   },
   async (error) => {
-    if (error.response && error.response.status === 401) {
+    if (error.response && error.response.status === 401 && !error.config.url.includes('/auth/refresh')) {
       console.error('Response error :: ', error.response)
 
       try {
         const refresh_token_url = '/api/auth/refresh'
-        const response = await axios.post(refresh_token_url, {
+        const response = await api.post(refresh_token_url, {
           refreshToken: localStorage.getItem('refreshToken'),
         })
 

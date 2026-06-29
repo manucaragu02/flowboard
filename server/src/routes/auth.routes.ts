@@ -6,14 +6,10 @@ import jwt, { JwtPayload, VerifyErrors } from 'jsonwebtoken'
 
 function verifyToken(token: string, secret: string): Promise<JwtPayload> {
   return new Promise((resolve, reject) => {
-    jwt.verify(
-      token,
-      secret,
-      (err: VerifyErrors | null, decoded: JwtPayload | string | undefined) => {
-        if (err) reject(err)
-        else resolve(decoded as JwtPayload)
-      },
-    )
+    jwt.verify(token, secret, (err: VerifyErrors | null, decoded: JwtPayload | string | undefined) => {
+      if (err) reject(err)
+      else resolve(decoded as JwtPayload)
+    })
   })
 }
 
@@ -37,9 +33,7 @@ router.post('/register', async (req: Request, res: Response) => {
   })
 
   if (existingUser) {
-    return res
-      .status(409)
-      .json({ error: 'El correo electrónico ya está registrado' })
+    return res.status(409).json({ error: 'El correo electrónico ya está registrado' })
   }
 
   const hashedPassword = await bcrypt.hash(parsed.data.password, 10)
@@ -79,25 +73,14 @@ router.post('/login', async (req: Request, res: Response) => {
     return res.status(401).json({ error: 'Credenciales inválidas' })
   }
 
-  const isPasswordValid = await bcrypt.compare(
-    parsed.data.password,
-    user.password,
-  )
+  const isPasswordValid = await bcrypt.compare(parsed.data.password, user.password)
 
   if (!isPasswordValid) {
     return res.status(401).json({ error: 'Credenciales inválidas' })
   }
 
-  const accessToken = jwt.sign(
-    { userId: user.id },
-    process.env.JWT_ACCESS_SECRET as string,
-    { expiresIn: '15m' },
-  )
-  const refreshToken = jwt.sign(
-    { userId: user.id },
-    process.env.JWT_REFRESH_SECRET as string,
-    { expiresIn: '7d' },
-  )
+  const accessToken = jwt.sign({ userId: user.id }, process.env.JWT_ACCESS_SECRET as string, { expiresIn: '15s' })
+  const refreshToken = jwt.sign({ userId: user.id }, process.env.JWT_REFRESH_SECRET as string, { expiresIn: '7d' })
 
   await prisma.refreshToken.create({
     data: {
@@ -113,9 +96,7 @@ router.post('/login', async (req: Request, res: Response) => {
 router.post('/refresh', async (req: Request, res: Response) => {
   const { refreshToken } = req.body
   if (!refreshToken) {
-    return res
-      .status(401)
-      .json({ error: 'Token de actualización no proporcionado' })
+    return res.status(401).json({ error: 'Token de actualización no proporcionado' })
   }
 
   const storedToken = await prisma.refreshToken.findUnique({
@@ -131,16 +112,9 @@ router.post('/refresh', async (req: Request, res: Response) => {
   }
 
   try {
-    const decoded = await verifyToken(
-      refreshToken,
-      process.env.JWT_REFRESH_SECRET as string,
-    )
+    const decoded = await verifyToken(refreshToken, process.env.JWT_REFRESH_SECRET as string)
     const userId = decoded.userId
-    const newAccessToken = jwt.sign(
-      { userId },
-      process.env.JWT_ACCESS_SECRET as string,
-      { expiresIn: '15m' },
-    )
+    const newAccessToken = jwt.sign({ userId }, process.env.JWT_ACCESS_SECRET as string, { expiresIn: '15m' })
     return res.status(200).json({ accessToken: newAccessToken })
   } catch (err) {
     await prisma.refreshToken.delete({ where: { token: refreshToken } })
@@ -152,9 +126,7 @@ router.post('/logout', async (req: Request, res: Response) => {
   const { refreshToken } = req.body
 
   if (!refreshToken) {
-    return res
-      .status(400)
-      .json({ error: 'Token de actualización no proporcionado' })
+    return res.status(400).json({ error: 'Token de actualización no proporcionado' })
   }
 
   await prisma.refreshToken.deleteMany({ where: { token: refreshToken } })
