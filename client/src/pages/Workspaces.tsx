@@ -77,11 +77,15 @@ function Workspaces() {
           <button type="submit">Crear workspace</button>
         </form>
       </Modal>
-      {workspaces.map((item) => (
-        <Link key={item.id} to={`/workspaces/${item.id}`}>
-          <WorkspaceCard name={item.name} memberCount={item.members.length} projectCount={item.projects.length} />
-        </Link>
-      ))}
+      {workspaces.length > 0 ? (
+        workspaces.map((item) => (
+          <Link key={item.id} to={`/workspaces/${item.id}`}>
+            <WorkspaceCard name={item.name} memberCount={item.members.length} projectCount={item.projects.length} />
+          </Link>
+        ))
+      ) : (
+        <p>No tienes ningún workspace</p>
+      )}
     </div>
   )
 }
