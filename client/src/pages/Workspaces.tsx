@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState, type BaseSyntheticEvent } from 'react'
 import api from '../api/axios'
-import WorkspaceCard from '../components/WorkspaceCard'
 import Modal from '../components/Modal'
 import FormField from '../components/FormField'
 import axios from 'axios'
 import { Link } from 'react-router-dom'
+import Card from '../components/Card'
 
 interface Workspace {
   id: string
@@ -80,7 +80,14 @@ function Workspaces() {
       {workspaces.length > 0 ? (
         workspaces.map((item) => (
           <Link key={item.id} to={`/workspaces/${item.id}`}>
-            <WorkspaceCard name={item.name} memberCount={item.members.length} projectCount={item.projects.length} />
+            <Card name={item.name}>
+              <p>
+                {item.members.length} miembro{item.members.length !== 1 ? 's' : ''}
+              </p>
+              <p>
+                {item.projects.length} proyecto{item.projects.length !== 1 ? 's' : ''}
+              </p>
+            </Card>
           </Link>
         ))
       ) : (

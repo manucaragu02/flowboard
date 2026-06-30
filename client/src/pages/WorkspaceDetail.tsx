@@ -1,10 +1,10 @@
 import { Link, useParams } from 'react-router-dom'
 import api from '../api/axios'
 import { useEffect, useRef, useState, type BaseSyntheticEvent } from 'react'
-import ProjectCard from '../components/ProjectCard'
 import Modal from '../components/Modal'
 import FormField from '../components/FormField'
 import axios from 'axios'
+import Card from '../components/Card'
 
 interface Project {
   id: string
@@ -80,7 +80,11 @@ function WorkspaceDetail() {
       {projects.length > 0 ? (
         projects.map((item) => (
           <Link key={item.id} to={`/projects/${item.id}`}>
-            <ProjectCard name={item.name} taskCount={item.tasks.length} />
+            <Card name={item.name}>
+              <p>
+                {item.tasks.length} tarea{item.tasks.length !== 1 ? 's' : ''}
+              </p>
+            </Card>
           </Link>
         ))
       ) : (
