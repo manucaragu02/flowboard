@@ -1,10 +1,10 @@
-import { useEffect, useRef, useState, type BaseSyntheticEvent } from 'react'
-import api from '../api/axios'
+import { useRef, useState, type BaseSyntheticEvent } from 'react'
 import Modal from '../components/Modal'
 import FormField from '../components/FormField'
-import axios from 'axios'
 import { Link } from 'react-router-dom'
 import Card from '../components/Card'
+import { useApiMutation } from '../hooks/useApiMutation'
+import { useFetch } from '../hooks/useFetch'
 
 interface Workspace {
   id: string
@@ -14,21 +14,17 @@ interface Workspace {
 }
 
 function Workspaces() {
-  const [workspaces, setWorkspaces] = useState<Workspace[]>([])
-
-  useEffect(() => {
-    api
-      .get('/api/workspaces')
-      .then(({ data }) => {
-        setWorkspaces(data)
-      })
-      .catch((error) => {
-        console.log(error)
-      })
-  }, [])
-
   const modalRef = useRef<HTMLDialogElement>(null)
   const [workspaceName, setWorkspaceName] = useState('')
+
+  const {
+    data: workspaces,
+    loading: loadingWorkspaces,
+    error: fetchError,
+    refetch,
+  } = useFetch<Workspace>('/api/workspaces')
+
+  if (fetchError) console.error(fetchError)
 
   function toggleDialog() {
     if (!modalRef.current) return
@@ -39,32 +35,29 @@ function Workspaces() {
     }
   }
 
-  const handleSubmit = (e: BaseSyntheticEvent) => {
+  const {
+    mutate,
+    loading: creatingWorkspace,
+    error: mutateError,
+  } = useApiMutation<Workspace>('post', '/api/workspaces')
+
+  const handleSubmit = async (e: BaseSyntheticEvent) => {
     e.preventDefault()
-
-    if (modalRef.current?.hasAttribute('open')) {
-      modalRef.current.close()
+    try {
+      await mutate({ name: workspaceName })
+      refetch()
+      toggleDialog()
+    } catch {
+      console.error(mutateError)
     }
-
-    api
-      .post('/api/workspaces', { name: workspaceName })
-      .then(({ data }) => {
-        console.log('Workspace creado:', data)
-        setWorkspaces((prev) => [...prev, data])
-      })
-      .catch((error) => {
-        if (axios.isAxiosError(error) && error.response) {
-          console.error(error.response.data.error || 'Ocurrió un error')
-        } else {
-          console.error('Ocurrió un error')
-        }
-      })
   }
 
   return (
     <div>
       <h1>Workspaces</h1>
-      <button onClick={toggleDialog}>Nuevo workspace</button>
+      <button onClick={toggleDialog} disabled={creatingWorkspace}>
+        Nuevo workspace
+      </button>
       <Modal ref={modalRef} toggleDialog={toggleDialog}>
         <form onSubmit={(e) => handleSubmit(e)}>
           <FormField
@@ -77,10 +70,12 @@ function Workspaces() {
           <button type="submit">Crear workspace</button>
         </form>
       </Modal>
-      {workspaces.length > 0 ? (
+      {loadingWorkspaces ? (
+        <p>Cargando...</p>
+      ) : workspaces.length > 0 ? (
         workspaces.map((item) => (
           <Link key={item.id} to={`/workspaces/${item.id}`}>
-            <Card name={item.name}>
+            <Card key={item.id} name={item.name}>
               <p>
                 {item.members.length} miembro{item.members.length !== 1 ? 's' : ''}
               </p>

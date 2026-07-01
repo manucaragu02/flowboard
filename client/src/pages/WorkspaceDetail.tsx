@@ -1,10 +1,10 @@
 import { Link, useParams } from 'react-router-dom'
-import api from '../api/axios'
-import { useEffect, useRef, useState, type BaseSyntheticEvent } from 'react'
+import { useRef, useState, type BaseSyntheticEvent } from 'react'
 import Modal from '../components/Modal'
 import FormField from '../components/FormField'
-import axios from 'axios'
 import Card from '../components/Card'
+import { useApiMutation } from '../hooks/useApiMutation'
+import { useFetch } from '../hooks/useFetch'
 
 interface Project {
   id: string
@@ -14,21 +14,17 @@ interface Project {
 
 function WorkspaceDetail() {
   const { workspaceId } = useParams()
-  const [projects, setProjects] = useState<Project[]>([])
-
-  useEffect(() => {
-    api
-      .get(`/api/workspaces/${workspaceId}/projects`)
-      .then(({ data }) => {
-        setProjects(data)
-      })
-      .catch((error) => {
-        console.log(error)
-      })
-  }, [workspaceId])
-
   const modalRef = useRef<HTMLDialogElement>(null)
   const [projectName, setProjectName] = useState('')
+
+  const {
+    data: projects,
+    loading: loadingPojects,
+    error: fetchError,
+    refetch,
+  } = useFetch<Project>(`/api/workspaces/${workspaceId}/projects`)
+
+  if (fetchError) console.error(fetchError)
 
   function toggleDialog() {
     if (!modalRef.current) return
@@ -39,32 +35,29 @@ function WorkspaceDetail() {
     }
   }
 
-  const handleSubmit = (e: BaseSyntheticEvent) => {
+  const {
+    mutate,
+    loading: creatingProject,
+    error: mutateError,
+  } = useApiMutation<Project>('post', `/api/workspaces/${workspaceId}/projects`)
+
+  const handleSubmit = async (e: BaseSyntheticEvent) => {
     e.preventDefault()
-
-    if (modalRef.current?.hasAttribute('open')) {
-      modalRef.current.close()
+    try {
+      await mutate({ name: projectName })
+      refetch()
+      toggleDialog()
+    } catch {
+      console.error(mutateError)
     }
-
-    api
-      .post(`/api/workspaces/${workspaceId}/projects`, { name: projectName })
-      .then(({ data }) => {
-        console.log('Workspace creado:', data)
-        setProjects((prev) => [...prev, data])
-      })
-      .catch((error) => {
-        if (axios.isAxiosError(error) && error.response) {
-          console.error(error.response.data.error || 'Ocurrió un error')
-        } else {
-          console.error('Ocurrió un error')
-        }
-      })
   }
 
   return (
     <div>
       <h1>Workspace Detail</h1>
-      <button onClick={toggleDialog}>Nuevo proyecto</button>
+      <button onClick={toggleDialog} disabled={creatingProject}>
+        Nuevo proyecto
+      </button>
       <Modal ref={modalRef} toggleDialog={toggleDialog}>
         <form onSubmit={(e) => handleSubmit(e)}>
           <FormField
@@ -77,10 +70,12 @@ function WorkspaceDetail() {
           <button type="submit">Crear proyecto</button>
         </form>
       </Modal>
-      {projects.length > 0 ? (
+      {loadingPojects ? (
+        <p>Cargando...</p>
+      ) : projects.length > 0 ? (
         projects.map((item) => (
           <Link key={item.id} to={`/projects/${item.id}`}>
-            <Card name={item.name}>
+            <Card key={item.id} name={item.name}>
               <p>
                 {item.tasks.length} tarea{item.tasks.length !== 1 ? 's' : ''}
               </p>
