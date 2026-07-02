@@ -4,14 +4,15 @@ import styles from './Card.module.css'
 interface Props {
   name: string
   children?: ReactNode
+  onClick?: () => void
 }
 
-function Card({ name, children }: Props) {
+function Card({ name, children, onClick }: Props) {
   return (
-    <div className={styles.container}>
+    <button className={styles.container} onClick={onClick}>
       <h2>{name}</h2>
       {children}
-    </div>
+    </button>
   )
 }
 
