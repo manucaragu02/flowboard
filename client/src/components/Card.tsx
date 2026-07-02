@@ -3,7 +3,7 @@ import styles from './Card.module.css'
 
 interface Props {
   name: string
-  children: ReactNode
+  children?: ReactNode
 }
 
 function Card({ name, children }: Props) {
