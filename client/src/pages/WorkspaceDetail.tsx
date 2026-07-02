@@ -57,11 +57,9 @@ function WorkspaceDetail() {
   return (
     <div>
       <h1>Workspace Detail</h1>
-      <button onClick={toggleDialog} disabled={creatingProject}>
-        Nuevo proyecto
-      </button>
+      <button onClick={toggleDialog}>Nuevo proyecto</button>
       <Modal ref={modalRef} toggleDialog={toggleDialog}>
-        <Form onSubmit={(e) => handleSubmit(e)} submitLabel="Crear proyecto">
+        <Form onSubmit={(e) => handleSubmit(e)} submitLabel="Crear proyecto" loading={creatingProject}>
           <FormField
             id="nombre"
             label="Nombre"

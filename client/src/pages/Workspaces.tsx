@@ -57,11 +57,9 @@ function Workspaces() {
   return (
     <div>
       <h1>Workspaces</h1>
-      <button onClick={toggleDialog} disabled={creatingWorkspace}>
-        Nuevo workspace
-      </button>
+      <button onClick={toggleDialog}>Nuevo workspace</button>
       <Modal ref={modalRef} toggleDialog={toggleDialog}>
-        <Form onSubmit={(e) => handleSubmit(e)} submitLabel="Crear workspace">
+        <Form onSubmit={(e) => handleSubmit(e)} submitLabel="Crear workspace" loading={creatingWorkspace}>
           <FormField
             id="nombre"
             label="Nombre"
