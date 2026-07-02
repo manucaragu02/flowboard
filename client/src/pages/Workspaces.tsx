@@ -5,6 +5,8 @@ import { Link } from 'react-router-dom'
 import Card from '../components/Card'
 import { useApiMutation } from '../hooks/useApiMutation'
 import { useFetch } from '../hooks/useFetch'
+import Form from '../components/Form'
+import Grid from '../components/Grid'
 
 interface Workspace {
   id: string
@@ -59,7 +61,7 @@ function Workspaces() {
         Nuevo workspace
       </button>
       <Modal ref={modalRef} toggleDialog={toggleDialog}>
-        <form onSubmit={(e) => handleSubmit(e)}>
+        <Form onSubmit={(e) => handleSubmit(e)} submitLabel="Crear workspace">
           <FormField
             id="nombre"
             label="Nombre"
@@ -67,24 +69,25 @@ function Workspaces() {
             value={workspaceName}
             onChange={(e) => setWorkspaceName(e.target.value)}
           />
-          <button type="submit">Crear workspace</button>
-        </form>
+        </Form>
       </Modal>
       {loadingWorkspaces ? (
         <p>Cargando...</p>
       ) : workspaces.length > 0 ? (
-        workspaces.map((item) => (
-          <Link key={item.id} to={`/workspaces/${item.id}`}>
-            <Card key={item.id} name={item.name}>
-              <p>
-                {item.members.length} miembro{item.members.length !== 1 ? 's' : ''}
-              </p>
-              <p>
-                {item.projects.length} proyecto{item.projects.length !== 1 ? 's' : ''}
-              </p>
-            </Card>
-          </Link>
-        ))
+        <Grid>
+          {workspaces.map((item) => (
+            <Link key={item.id} to={`/workspaces/${item.id}`}>
+              <Card key={item.id} name={item.name}>
+                <p>
+                  {item.members.length} miembro{item.members.length !== 1 ? 's' : ''}
+                </p>
+                <p>
+                  {item.projects.length} proyecto{item.projects.length !== 1 ? 's' : ''}
+                </p>
+              </Card>
+            </Link>
+          ))}
+        </Grid>
       ) : (
         <p>No tienes ningún workspace</p>
       )}

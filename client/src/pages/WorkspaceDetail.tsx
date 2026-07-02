@@ -5,6 +5,8 @@ import FormField from '../components/FormField'
 import Card from '../components/Card'
 import { useApiMutation } from '../hooks/useApiMutation'
 import { useFetch } from '../hooks/useFetch'
+import Form from '../components/Form'
+import Grid from '../components/Grid'
 
 interface Project {
   id: string
@@ -59,7 +61,7 @@ function WorkspaceDetail() {
         Nuevo proyecto
       </button>
       <Modal ref={modalRef} toggleDialog={toggleDialog}>
-        <form onSubmit={(e) => handleSubmit(e)}>
+        <Form onSubmit={(e) => handleSubmit(e)} submitLabel="Crear proyecto">
           <FormField
             id="nombre"
             label="Nombre"
@@ -67,21 +69,22 @@ function WorkspaceDetail() {
             value={projectName}
             onChange={(e) => setProjectName(e.target.value)}
           />
-          <button type="submit">Crear proyecto</button>
-        </form>
+        </Form>
       </Modal>
       {loadingPojects ? (
         <p>Cargando...</p>
       ) : projects.length > 0 ? (
-        projects.map((item) => (
-          <Link key={item.id} to={`/projects/${item.id}`}>
-            <Card key={item.id} name={item.name}>
-              <p>
-                {item.tasks.length} tarea{item.tasks.length !== 1 ? 's' : ''}
-              </p>
-            </Card>
-          </Link>
-        ))
+        <Grid>
+          {projects.map((item) => (
+            <Link key={item.id} to={`/projects/${item.id}`}>
+              <Card key={item.id} name={item.name}>
+                <p>
+                  {item.tasks.length} tarea{item.tasks.length !== 1 ? 's' : ''}
+                </p>
+              </Card>
+            </Link>
+          ))}
+        </Grid>
       ) : (
         <p>Este workspace no tiene ningún proyecto</p>
       )}
